@@ -2,11 +2,13 @@
 
 '''
     作者： 陈广
-    时间：2017-4-14
-    版本号： 20170414
+    时间：2017-7-6
+    版本号： 20170706
     程序简介：读入亚马逊各个站点的广告活动数据以及销售数据，
     对其某个时段的订单数，点击量，销售量，销售额，ACOS，
-    转化率等进行统计计算。最后在Result文件夹输出excel文件。
+    转化率,CTR等进行统计计算。最后在Result文件夹输出excel文件。
+
+    注： 运行程序前，查看第116行与第130行文件地址目录是否正确
 '''
 
 from __future__ import division
@@ -57,61 +59,61 @@ class AmzAdsAnalysis:
         '''
 
         ads_dict = {
-            'SXDE': '../data1/SX/EU/Ads/DE/ads report/',
-            'SXES': '../data1/SX/EU/Ads/ES/ads report/',
-            'SXFR': '../data1/SX/EU/Ads/FR/ads report/',
-            'SXIT': '../data1/SX/EU/Ads/IT/ads report/',
-            'SXUK': '../data1/SX/EU/Ads/UK/ads report/',
-            'SXJP': '../data1/SX/Japan/Ads/',
-            'SXCA': '../data1/SX/North America/Ads/CA/ads report/',
-            'SXUSA': '../data1/SX/North America/Ads/USA/ads report/',
-            'HYYDE': '../data1/HYY/EU/ads/DE/',
-            'HYYES': '../data1/HYY/EU/ads/ES/',
-            'HYYFR': '../data1/HYY/EU/ads/FR/',
-            'HYYIT': '../data1/HYY/EU/ads/IT/',
-            'HYYUK': '../data1/HYY/EU/ads/UK/',
-            'HYYJP': '../data1/HYY/Japan/Ads/',
-            'HYYUSA': '../data1/HYY/North America/ads/USA/ads report/',
-            'TXHLDE': '../data1/TXHL/EU/ads/DE/',
-            'TXHLES': '../data1/TXHL/EU/ads/ES/',
-            'TXHLFR': '../data1/TXHL/EU/ads/FR/',
-            'TXHLIT': '../data1/TXHL/EU/ads/IT/',
-            'TXHLUK': '../data1/TXHL/EU/ads/UK/',
-            'TXHLJP': '../data1/TXHL/EU/ads/DE/',
+            'SXDE': '/data/SX/EU/Ads/DE/ads report/',
+            'SXES': '/data/SX/EU/Ads/ES/ads report/',
+            'SXFR': '/data/SX/EU/Ads/FR/ads report/',
+            'SXIT': '/data/SX/EU/Ads/IT/ads report/',
+            'SXUK': '/data/SX/EU/Ads/UK/ads report/',
+            'SXJP': '/data/SX/Japan/Ads/',
+            'SXCA': '/data/SX/North America/Ads/CA/ads report/',
+            'SXUS': '/data/SX/North America/Ads/USA/ads report/',
+            'HYYDE': '/data/HYY/EU/ads/DE/',
+            'HYYES': '/data/HYY/EU/ads/ES/',
+            'HYYFR': '/data/HYY/EU/ads/FR/',
+            'HYYIT': '/data/HYY/EU/ads/IT/',
+            'HYYUK': '/data/HYY/EU/ads/UK/',
+            'HYYJP': '/data/HYY/Japan/Ads/',
+            'HYYUS': '/data/HYY/North America/ads/USA/ads report/',
+            'TXHLDE': '/data/TXHL/EU/ads/DE/',
+            'TXHLES': '/data/TXHL/EU/ads/ES/',
+            'TXHLFR': '/data/TXHL/EU/ads/FR/',
+            'TXHLIT': '/data/TXHL/EU/ads/IT/',
+            'TXHLUK': '/data/TXHL/EU/ads/UK/',
+            'TXHLJP': '/data/TXHL/Japan/ads/',
             'TXHLCA': '',
-            'TXHLUSA': '',
+            'TXHLUS': '',
         }
 
         sales_dict = {
-            'SXDE': '../data1/SX/EU/business report/DE/',
-            'SXES': '../data1/SX/EU/business report/ES/',
-            'SXFR': '../data1/SX/EU/business report/FR/',
-            'SXIT': '../data1/SX/EU/business report/IT/',
-            'SXUK': '../data1/SX/EU/business report/UK/',
-            'SXJP': '../data1/SX/Japan/business report/',
-            'SXCA': '../data1/SX/North America/business report/CA/',
-            'SXUSA': '../data1/SX/North America/business report/USA/',
-            'HYYDE': '../data1/HYY/EU/business report/DE/',
-            'HYYES': '../data1/HYY/EU/business report/ES/',
-            'HYYFR': '../data1/HYY/EU/business report/FR/',
-            'HYYIT': '../data1/HYY/EU/business report/IT/',
-            'HYYUK': '../data1/HYY/EU/business report/UK/',
-            'HYYJP': '../data1/HYY/Japan/business report/',
-            'HYYCA': '../data1/HYY/North America/business report/CA/',
-            'HYYUSA': '../data1/HYY/North America/business report/USA/',
-            'TXHLDE': '../data1/TXHL/EU/business report/DE/',
-            'TXHLES': '../data1/TXHL/EU/business report/ES/',
-            'TXHLFR': '../data1/TXHL/EU/business report/FR/',
-            'TXHLIT': '../data1/TXHL/EU/business report/IT/',
-            'TXHLUK': '../data1/TXHL/EU/business report/UK/',
-            'TXHLJP': '',
+            'SXDE': '/data/SX/EU/business report/DE/',
+            'SXES': '/data/SX/EU/business report/ES/',
+            'SXFR': '/data/SX/EU/business report/FR/',
+            'SXIT': '/data/SX/EU/business report/IT/',
+            'SXUK': '/data/SX/EU/business report/UK/',
+            'SXJP': '/data/SX/Japan/business report/',
+            'SXCA': '/data/SX/North America/business report/CA/',
+            'SXUS': '/data/SX/North America/business report/USA/',
+            'HYYDE': '/data/HYY/EU/business report/DE/',
+            'HYYES': '/data/HYY/EU/business report/ES/',
+            'HYYFR': '/data/HYY/EU/business report/FR/',
+            'HYYIT': '/data/HYY/EU/business report/IT/',
+            'HYYUK': '/data/HYY/EU/business report/UK/',
+            'HYYJP': '/data/HYY/Japan/business report/',
+            'HYYCA': '/data/HYY/North America/business report/CA/',
+            'HYYUS': '/data/HYY/North America/business report/USA/',
+            'TXHLDE': '/data/TXHL/EU/business report/DE/',
+            'TXHLES': '/data/TXHL/EU/business report/ES/',
+            'TXHLFR': '/data/TXHL/EU/business report/FR/',
+            'TXHLIT': '/data/TXHL/EU/business report/IT/',
+            'TXHLUK': '/data/TXHL/EU/business report/UK/',
+            'TXHLJP': '/data/TXHL/Japan/business report/',
             'TXHLCA': '',
-            'TXHLUSA': '',
+            'TXHLUS': '',
         }
 
         if datatype:
             ad_campaign = DataFrame()
-            path = ads_dict[self.store + self.country]
+            path = 'F:/PycharmFile'+ ads_dict[self.store + self.country]   # 广告数据文件地址
             file_fold = self.end.strftime('%Y') + '.' + self.end.strftime('%m')
             # 需修改： 直接写出文件夹名，文件名file_name，如果存在，则打开文件，不存在，则查找
             if os.path.isdir(path + file_fold):  # 找到月份文件夹
@@ -125,12 +127,12 @@ class AmzAdsAnalysis:
             return ad_campaign
         else:
             sales_df = DataFrame()
-            path = sales_dict[self.store + self.country]
+            path = 'F:/PycharmFile' + sales_dict[self.store + self.country]     #销售数据文件地址
             delta = (self.end - self.start).days
             for i in range(delta+1):
                 date = (self.start + timedelta(days=i))
                 file_name = self.store + self.country + '-' + date.strftime('%y') + '-' + str(date.month)\
-                + '-' + date.strftime('%d') + '.csv'
+                + '-' + str(date.day) + '.csv'
                 for root, subdirs, files, in os.walk(path):
                     for name in files:
                         if name == file_name:
@@ -138,6 +140,12 @@ class AmzAdsAnalysis:
                             file_path = root + '/' + name
                             df = pd.read_csv(file_path, encoding='utf8')
                             sales_df = pd.concat([sales_df, df])
+
+            sales_df = sales_df[[u'（子）ASIN', u'商品名称', u'买家访问次数', u'买家访问次数百分比',u'页面浏览次数',
+                                 u'页面浏览次数百分比',
+                                 u'购买按钮页面浏览率', u'已订购商品数量', u'订单商品数量转化率', u'已订购商品销售额',
+                                 u'订单商品种类数']]
+            print sales_df.head()
 
             return sales_df
 
@@ -167,7 +175,7 @@ class AmzAdsAnalysis:
         if self.country == 'JP':
             df['Start Date'] = pd.to_datetime(df['Start Date'], yearfirst=True)
             df['End Date'] = pd.to_datetime(df['End Date'], yearfirst=True)
-        elif ((self.country == 'CA') | (self.country == 'USA')):
+        elif ((self.country == 'CA') | (self.country == 'US')):
             df['Start Date'] = pd.to_datetime(df['Start Date'])
             df['End Date'] = pd.to_datetime(df['End Date'])
         else:
@@ -201,6 +209,8 @@ class AmzAdsAnalysis:
         spend = grouped['Total Spend'].sum()  # 第五个维度
         sales = grouped['1-day Ordered Product Sales'].sum()  # 第六个维度
 
+        impressions = grouped['Impressions'].sum()
+
         format_ = lambda x: '%.2f' % x
         # 第一个维度
         conversion = (orders / clicks).apply(format_).replace(['inf', 'nan'], 0.00).apply(float)
@@ -209,8 +219,12 @@ class AmzAdsAnalysis:
         acos = (spend / sales).apply(format_).replace(['inf', 'nan'], 0.00).apply(float)
         acos.name = 'ACOS'
 
+        # CTR
+        ctr = (clicks/impressions).replace(['inf', 'nan', 0.00]).apply(float)
+        ctr.name = 'CTR'
+
         # 合并数据
-        output_df = pd.concat([conversion, acos, orders, clicks, spend, sales], axis=1)
+        output_df = pd.concat([conversion, acos, ctr, orders, clicks, spend, sales], axis=1)
         return output_df
 
 
@@ -222,17 +236,25 @@ class AmzAdsAnalysis:
         '''
         format_ = lambda x: '%.2f' % x
         sum_clicks = grouped['Clicks'].sum()
+        sum_impressions = grouped['Impressions'].sum()
         sum_orders = grouped['1-day Orders Placed (#)'].sum()
         sum_spend = grouped['Total Spend'].sum()
         sum_sales = grouped['1-day Ordered Product Sales'].sum()
-        sum_conversion = sum_orders/sum_clicks
-        if sum_sales==0:
+        if sum_clicks == 0:
+            sum_conversion = 0
+        else:
+            sum_conversion = sum_orders/sum_clicks
+        if sum_impressions == 0:
+            sum_ctr = 0
+        else:
+            sum_ctr = sum_clicks/sum_impressions
+        if sum_sales == 0:
             sum_acos = 0
         else:
             sum_acos = sum_spend/sum_sales
-        sum_series = Series([sum_clicks, sum_orders, sum_spend, sum_sales, sum_conversion, sum_acos]).apply(format_)
+        sum_series = Series([sum_clicks, sum_orders, sum_spend, sum_sales, sum_conversion, sum_acos, sum_ctr]).apply(format_)
         sum_series.index = ['Clicks', '1-day Orders Placed (#)', 'Total Spend',
-                                '1-day Ordered Product Sales', 'Average conversion rate', 'Average ACOS']
+                                '1-day Ordered Product Sales', 'Average conversion rate', 'Average ACOS', 'Average CTR']
         return sum_series
 
 
@@ -267,7 +289,7 @@ class AmzAdsAnalysis:
         print "Sales Data"
         activities = self.file_load(datatype=False)
 
-        activities.columns = ['(Father) ASIN', '(Son) ASIN', '商品名称', 'Total clicks', '买家访问次数百分比',
+        activities.columns = ['(Son) ASIN', '商品名称', 'Total clicks', '买家访问次数百分比',
                               '买家浏览次数', '页面浏览次数百分比', '购买按钮页面浏览率', 'Total ordered', '订单商品数量转化率',
                               'Total ordered product sales', '订单商品种类']
 
@@ -360,7 +382,7 @@ class AmzAdsAnalysis:
             else:
                 auto_conversion_rate = 0
                 df = output_df.ix[sku]
-                manual_ad_conversion_rate = df['Clicks'].sum()/df['1-day Orders Placed (#)'].sum()
+                manual_ad_conversion_rate = df['1-day Orders Placed (#)'].sum()/(df['Clicks'].sum()+0.001)
                 output_df['Auto ads conversion rate'] = auto_conversion_rate
                 output_df['Manual ads conversion rate'] = manual_ad_conversion_rate
 
@@ -376,7 +398,7 @@ class AmzAdsAnalysis:
         :return:
         '''
         print "Searchable store name: HYY, SX, TXHL."
-        print "Searchable country code:  DE, ES, FR, IT, UK, JP, CA, USA"
+        print "Searchable country code:  DE, ES, FR, IT, UK, JP, CA, US"
         print "Searchable date period: 2017/03/01 - 2017/04/11"
         self.store = raw_input("Input store name: ")
         self.country = raw_input("Input country code: ")
