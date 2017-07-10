@@ -2,11 +2,13 @@
 
 '''
     作者： 陈广
-    时间：2017-5-18
-    版本号： 20170518
+    时间：2017-7-10
+    版本号： 20170710
     程序简介：读入亚马逊各个站点的广告活动数据，
     对其某个时段的订单数，点击量，销售量，销售额，ACOS，
-    转化率等进行统计计算。最后在Result文件夹输出excel文件。
+    转化率，CTR等进行统计计算。最后在Result文件夹输出excel文件。
+
+    注：在运行程序前，在第86行修改文件的读取目录，即可正常运行
 
 '''
 
@@ -55,33 +57,33 @@ class AmzAdsAnalysis:
         '''
 
         ads_dict = {
-            'SXDE': '../data/SX/EU/Ads/DE/ads report/',
-            'SXES': '../data/SX/EU/Ads/ES/ads report/',
-            'SXFR': '../data/SX/EU/Ads/FR/ads report/',
-            'SXIT': '../data/SX/EU/Ads/IT/ads report/',
-            'SXUK': '../data/SX/EU/Ads/UK/ads report/',
-            'SXJP': '../data/SX/Japan/Ads/',
-            'SXCA': '../data/SX/North America/Ads/CA/ads report/',
-            'SXUS': '../data/SX/North America/Ads/USA/ads report/',
-            'HYYDE': '../data/HYY/EU/ads/DE/',
-            'HYYES': '../data/HYY/EU/ads/ES/',
-            'HYYFR': '../data/HYY/EU/ads/FR/',
-            'HYYIT': '../data/HYY/EU/ads/IT/',
-            'HYYUK': '../data/HYY/EU/ads/UK/',
-            'HYYJP': '../data/HYY/Japan/Ads/',
-            'HYYUS': '../data/HYY/North America/ads/USA/ads report/',
-            'TXHLDE': '../data/TXHL/EU/ads/DE/',
-            'TXHLES': '../data/TXHL/EU/ads/ES/',
-            'TXHLFR': '../data/TXHL/EU/ads/FR/',
-            'TXHLIT': '../data/TXHL/EU/ads/IT/',
-            'TXHLUK': '../data/TXHL/EU/ads/UK/',
-            'TXHLJP': '../data/TXHL/Japan/ads/',
+            'SXDE': '/data/SX/EU/Ads/DE/ads report/',
+            'SXES': '/data/SX/EU/Ads/ES/ads report/',
+            'SXFR': '/data/SX/EU/Ads/FR/ads report/',
+            'SXIT': '/data/SX/EU/Ads/IT/ads report/',
+            'SXUK': '/data/SX/EU/Ads/UK/ads report/',
+            'SXJP': '/data/SX/Japan/Ads/',
+            'SXCA': '/data/SX/North America/Ads/CA/ads report/',
+            'SXUS': '/data/SX/North America/Ads/USA/ads report/',
+            'HYYDE': '/data/HYY/EU/ads/DE/',
+            'HYYES': '/data/HYY/EU/ads/ES/',
+            'HYYFR': '/data/HYY/EU/ads/FR/',
+            'HYYIT': '/data/HYY/EU/ads/IT/',
+            'HYYUK': '/data/HYY/EU/ads/UK/',
+            'HYYJP': '/data/HYY/Japan/Ads/',
+            'HYYUS': '/data/HYY/North America/ads/USA/ads report/',
+            'TXHLDE': '/data/TXHL/EU/ads/DE/',
+            'TXHLES': '/data/TXHL/EU/ads/ES/',
+            'TXHLFR': '/data/TXHL/EU/ads/FR/',
+            'TXHLIT': '/data/TXHL/EU/ads/IT/',
+            'TXHLUK': '/data/TXHL/EU/ads/UK/',
+            'TXHLJP': '/data/TXHL/Japan/ads/',
             'TXHLCA': '',
             'TXHLUS': '',
         }
 
         ad_campaign = DataFrame()
-        path = ads_dict[self.store + self.country]
+        path = 'F:/PycharmFile' + ads_dict[self.store + self.country]   #广告数据文件存放位置
         file_fold = self.end.strftime('%Y') + '.' + self.end.strftime('%m')
         # 需修改： 直接写出文件夹名，文件名file_name，如果存在，则打开文件，不存在，则查找
         if os.path.isdir(path + file_fold):  # 找到月份文件夹
@@ -153,6 +155,8 @@ class AmzAdsAnalysis:
         spend = grouped['Total Spend'].sum()  # 第五个维度
         sales = grouped['1-day Ordered Product Sales'].sum()  # 第六个维度
 
+        impressions = grouped['Impressions'].sum()
+
         format_ = lambda x: '%.2f' % x
         # 第一个维度
         conversion = (orders / clicks).apply(format_).replace(['inf', 'nan'], 0.00).apply(float)
@@ -161,8 +165,11 @@ class AmzAdsAnalysis:
         acos = (spend / sales).apply(format_).replace(['inf', 'nan'], 0.00).apply(float)
         acos.name = 'ACOS'
 
+        ctr = (clicks/impressions).replace(['inf', 'nan'], 0).apply(float)
+        ctr.name = 'CTR'
+
         # 合并数据
-        output_df = pd.concat([conversion, acos, orders, clicks, spend, sales], axis=1)
+        output_df = pd.concat([conversion, acos, ctr, orders, clicks, spend, sales], axis=1)
         return output_df
 
 
@@ -174,17 +181,27 @@ class AmzAdsAnalysis:
         '''
         format_ = lambda x: '%.2f' % x
         sum_clicks = grouped['Clicks'].sum()
+        sum_impressions = grouped['Impressions'].sum()
         sum_orders = grouped['1-day Orders Placed (#)'].sum()
         sum_spend = grouped['Total Spend'].sum()
         sum_sales = grouped['1-day Ordered Product Sales'].sum()
-        sum_conversion = sum_orders/sum_clicks
+        if sum_clicks == 0:
+            sum_conversion = 0
+        else:
+            sum_conversion = sum_orders/sum_clicks
+
+        if sum_impressions == 0:
+            sum_ctr = 0
+        else:
+            sum_ctr = sum_clicks/sum_impressions
+
         if sum_sales==0:
             sum_acos = 0
         else:
             sum_acos = sum_spend/sum_sales
-        sum_series = Series([sum_clicks, sum_orders, sum_spend, sum_sales, sum_conversion, sum_acos]).apply(format_)
+        sum_series = Series([sum_clicks, sum_orders, sum_spend, sum_sales, sum_conversion, sum_acos, sum_ctr]).apply(format_)
         sum_series.index = ['Clicks', '1-day Orders Placed (#)', 'Total Spend',
-                                '1-day Ordered Product Sales', 'Average conversion rate', 'Average ACOS']
+                                '1-day Ordered Product Sales', 'Average conversion rate', 'Average ACOS', 'Average CTR']
         return sum_series
 
 
