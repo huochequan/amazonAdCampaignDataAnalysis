@@ -17,6 +17,8 @@ from dateutil.parser import parse
 from datetime import timedelta
 from pandas import Series, DataFrame
 import datetime
+import xlsxwriter
+import diagnose
 import pandas as pd
 import os
 
@@ -86,13 +88,21 @@ class AmzAdsAnalysis:
         path = 'F:/PycharmFile' + ads_dict[self.store + self.country]   #广告数据文件存放位置
         file_fold = self.end.strftime('%Y') + '.' + self.end.strftime('%m')
         # 需修改： 直接写出文件夹名，文件名file_name，如果存在，则打开文件，不存在，则查找
+        file_name = "ADs_" + self.store + self.country + "_" + str(self.end.year) + "-" \
+                    + str(self.end.month) + "-" + str(self.end.day) + ".txt"
         if os.path.isdir(path + file_fold):  # 找到月份文件夹
-            file_name = "ADs_" + self.store + self.country + "_" + str(self.end.year) + "-" \
-                        + str(self.end.month) + "-" + str(self.end.day) + ".txt"
+
+            if os.path.isfile(path + file_fold + "/" + file_name):
+                pass
+            else:
+                print 'There is no such file at ' + path + file_fold + "/" + file_name
+
             if self.country == "JP":
                 ad_campaign = pd.read_table(path + file_fold + "/" + file_name, sep='\t', encoding='Shift-JIS')
             else:
                 ad_campaign = pd.read_table(path + file_fold + "/" + file_name, sep='\t', encoding='utf-8')
+        else:
+            print 'There is no such file at ' + path + file_fold + "/" + file_name
 
         return ad_campaign
 
@@ -155,6 +165,7 @@ class AmzAdsAnalysis:
         spend = grouped['Total Spend'].sum()  # 第五个维度
         sales = grouped['1-day Ordered Product Sales'].sum()  # 第六个维度
 
+
         impressions = grouped['Impressions'].sum()
 
         format_ = lambda x: '%.2f' % x
@@ -169,7 +180,7 @@ class AmzAdsAnalysis:
         ctr.name = 'CTR'
 
         # 合并数据
-        output_df = pd.concat([conversion, acos, ctr, orders, clicks, spend, sales], axis=1)
+        output_df = pd.concat([impressions, ctr, clicks, conversion, sales, acos, orders, spend], axis=1)
         return output_df
 
 
@@ -211,13 +222,17 @@ class AmzAdsAnalysis:
         :param ad_campaign, sku:
         :return: manual_ad_conversion_rate
         '''
+        print df
 
         df_clicks = df['Clicks'].sum()
+        print df_clicks
         df_orders = df['1-day Orders Placed (#)'].sum()
 
         manual_ad_clicks = df_clicks - df.ix["*", "Clicks"]
+        print manual_ad_clicks
+        print type(manual_ad_clicks)
 
-        if (manual_ad_clicks == 0):
+        if not manual_ad_clicks:
             return 0
 
         manual_ad_orders = df_orders - df.ix["*", "1-day Orders Placed (#)"]
@@ -247,7 +262,10 @@ class AmzAdsAnalysis:
 
         sum_series = self.data_sum(temp_df)
 
-        output_dataframe.sort_values('Conversion Rate', ascending=False).to_excel(writer, sheet_name='ADs_Campaign')
+        output_dataframe.sort_values('Impressions', ascending=False).to_excel(writer, sheet_name='ADS_Campaign')
+        days = (self.end - self.start).days
+        writer = diagnose.diagnose(writer, 'ADS_Campaign', output_dataframe.shape, days)
+
 
         return sum_series
 
@@ -285,7 +303,9 @@ class AmzAdsAnalysis:
                 output_df['Auto ads conversion rate'] = auto_conversion_rate
                 output_df['Manual ads conversion rate'] = manual_ad_conversion_rate
 
-            output_df.ix[sku].sort_values('Conversion Rate', ascending=False).to_excel(writer, sheet_name=sku)
+            output_df.ix[sku].sort_values('Impressions', ascending=False).to_excel(writer, sheet_name=sku)
+            days = (self.end - self.start).days
+            writer = diagnose.diagnose(writer, sku, output_df.ix[sku].shape, days)
 
     # 是否还需要根据sku来计算总和？
         return None
@@ -318,6 +338,10 @@ class AmzAdsAnalysis:
         # 载入文件
         ad_campaign = self.file_load()
 
+        if ad_campaign.shape == (0, 0):
+            print "Loaded file failed. "
+            return None
+
         # 文件处理
         ad_campaign = self.file_process(ad_campaign,)
 
@@ -332,6 +356,7 @@ class AmzAdsAnalysis:
 
         # 对不同sku的产品，统计转化率等信息
         self.sku_search(ad_campaign, writer)
+
 
         writer.save()
 
